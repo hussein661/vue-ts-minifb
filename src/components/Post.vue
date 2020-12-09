@@ -1,22 +1,22 @@
 <template>
   <div class="post-content">
-   <h3>{{post.title.split(" ")[0]}}</h3>
+   <h3>{{post.name}}</h3>
    <p>{{post.body}}</p>
    <div class="counters">
-       <div class="counter-item">{{likes}} likes</div>
-       <div class="counter-item">{{comments.length}} comments</div>
+       <div class="counter-item">{{post.likes}} likes</div>
+       <div class="counter-item">{{post.comments.length}} comments</div>
 
    </div>
     <hr />
     <div class="actions">
-        <div class="action-item" @click="likes++">Like</div>
+        <div class="action-item" @click="incrementLikes">Like</div>
         <div class="action-item" @click="isCommentBoxOpened = !isCommentBoxOpened">Comment</div>
         <div class="action-item">Share</div>
     </div>
     <hr />
-    <div class="comment" v-for="comment in comments" :key="comment.id">
-        <div class="user email-user">{{comment.email}}</div>
-        <div class="user">{{comment.body}}</div>
+    <div class="comment" v-for="comment in post.comments" :key="comment.id">
+        <div class="user email-user">{{comment.commenter}}</div>
+        <div class="user">{{comment.commentBody}}</div>
         <hr />
     </div>
     <div class="input-box" v-if="isCommentBoxOpened">
@@ -30,26 +30,35 @@
 <script lang="ts">
 import Axios from "axios";
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-
+import firebase from "../firebase/firebaseConfig";
+const db = firebase.firestore();
 @Component
 export default class Post extends Vue {
   @Prop() readonly post!: any
-  private likes = 0
   private isCommentBoxOpened = false
   commentBody = ''
-  public comments:Array<object> = []
-  mounted(){
-      Axios.get('https://jsonplaceholder.typicode.com/posts/'+this.post.id+'/comments').then(res=>{
-          this.comments = res.data
-      })
+  incrementLikes(){
+      this.post.likes++
+          db.collection("posts")
+        .doc(this.post.id)
+        .update({
+          likes: this.post.likes,
+        })
   }
   submit(e:any){
       e.preventDefault()
-      this.comments.push({
+      const comment = {
           id:(new Date()).getTime(),
-          email:'you',
-          body:this.commentBody
-      })
+          commenter:this.$store.state.user.name,
+          commentBody:this.commentBody
+      }
+      db.collection("posts")
+        .doc(this.post.id)
+        .update({
+          comments: [...this.post.comments,comment],
+        }).then(
+        this.post.comments.push(comment)
+      )
       this.commentBody = ''
       this.isCommentBoxOpened = false
   }

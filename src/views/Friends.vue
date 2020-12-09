@@ -64,9 +64,14 @@ export default class Profile extends Vue {
     max-width: 700px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(5,20%);
-    grid-gap: 10px;
+        grid-gap: 10px;
     text-align: center;
+    grid-template-columns: repeat(5,20%);
+@media screen and (max-width: 992px) {
+    width: 100%;
+       grid-template-columns: repeat(3,1fr);
+} 
+
     img {
         width: 100%;
     }

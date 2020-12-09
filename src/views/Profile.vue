@@ -128,17 +128,13 @@ import Axios from "axios";
   },
 })
 export default class Profile extends Vue {
-  user = {
-    position: "Front end developer",
-    major: "Computer sciences",
-    uni: "AUCE",
-    address: "beirut, lebanon",
-    dob: "10 june",
-  };
   friends = [];
   savedUser={};
   isEditModeOpened = false;
-  errors:any=[]
+  errors:any=[];
+  get user(){
+    return this.$store.state.user
+  }
   newPost(postBody: string) {
     this.$store.commit("appendMyPosts", postBody);
   }
@@ -172,6 +168,9 @@ export default class Profile extends Vue {
   margin: 0 auto;
   display: grid;
   grid-template-columns: 40% 60%;
+@media screen and (max-width: 992px) {
+  display: block;
+}
 }
 
 ul {
@@ -241,10 +240,15 @@ ul {
     width: 50%;
     border-radius: 10px;
     padding: 10px;
-
+    @media screen and (max-width: 992px) {
+  width: 90%;
+}
     .input-wrapper {
       margin: 10px;
       width: 400px;
+      @media screen and (max-width: 992px) {
+       width: auto;
+} 
       display: flex;
       justify-content: space-between;;
       label {
@@ -254,7 +258,9 @@ ul {
         border-radius: 9px;
         border: 1px solid lightgray;
         outline: none;
-
+        @media screen and (max-width: 992px) {
+        padding: 5px 10px;;
+}       border-radius: 6px;
       }
     }
   }

@@ -1,8 +1,8 @@
 <template>
     <div class="profile">
     <div class="header">
-      <div class="main-title h3">Hussein Hussein</div>
-      <p class="main-title">Front end developer</p>
+      <div class="main-title h3">{{user.name}}</div>
+      <p class="main-title">{{user.position}}</p>
       <hr />
       <div class="menu">
         <div class="menu-item" :class="{active:active === 'posts'}" @click="$router.push('profile')">Posts</div>
@@ -21,7 +21,13 @@ export default {
             type:String,
             default:''
         }
+    },
+    computed:{
+      user(){
+        return this.$store.state.user
+      }
     }
+
 }
 </script>
 

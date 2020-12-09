@@ -16,10 +16,11 @@
 import HelloWorld from "@/components/HelloWorld.vue";
 import Post from "@/components/Post.vue";
 import Poster from "@/components/Poster.vue";
-
-
 import Axios from 'axios'
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import firebase from "../firebase/firebaseConfig";
+const db = firebase.firestore();
+
 @Component({
   components:{
     Post,
@@ -34,33 +35,28 @@ export default class Home extends Vue {
 
 }
    public getPosts():void{
-    Axios.get('https://jsonplaceholder.typicode.com/posts').then(res=>{
-      const myPosts: any[] = []
-      res.data = res.data.map((post: any)=>{
-        if(post.userId === 1){
-          post.title = 'Hussein'
-          myPosts.push(post)
-        }
-        return post
-      })
-
-      this.posts = res.data
-      this.$store.commit('setMyPosts',myPosts)
-    })
+   db.collection("posts").get().then(querySnapshot=> {
+     querySnapshot.forEach((doc:any) => {
+        this.posts.push({...doc.data(),id:doc.id})
+    });
+});
   }
   newPost(postBody:string){
-         this.posts = [
-       {
-         id:(new Date()).getTime(),
-         title:'Hussein',
-         body:postBody,
-         userId:1
-
-       },
-       ...this.posts
-     ]
      this.$store.commit('appendMyPosts',postBody)
+      db.collection("posts")
+          .add({ name: this.$store.state.user.name ,body:postBody,likes:0,comments:[],created:new Date().getTime()  })
+          .then((res) => {
+          res.get().then((resp:any)=>{
+              this.posts.unshift({...resp.data(),id:resp.id})
+            })
+            console.log("Document successfully written!");
+          })
+          .catch((error) => {
+            console.error("Error writing document: ", error);
+          });
+        
   }
+
 }
 
 </script>
