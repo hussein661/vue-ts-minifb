@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+
     <div id="nav" v-if="isLoginPage">
       <div class="nav-items nav-items-wrap">
         <div class="" >
