@@ -35,15 +35,17 @@ export default class Home extends Vue {
 }
    public getPosts():void{
    db.collection("posts").get().then(querySnapshot=> {
+      const currentuserposts:any = []
      querySnapshot.forEach((doc:any) => {
         this.posts.push({...doc.data(),id:doc.id})
     });
-});
+}
+);
+    
   }
   newPost(postBody:string){
-     this.$store.commit('appendMyPosts',postBody)
       db.collection("posts")
-          .add({ name: this.$store.state.user.name ,body:postBody,likes:0,comments:[],created:new Date().getTime()  })
+          .add({ name: this.$store.state.user.name ,body:postBody,likes:0,comments:[],created:new Date().getTime(),userId:this.$store.state.user.uid  })
           .then((res) => {
           res.get().then((resp:any)=>{
               this.posts.unshift({...resp.data(),id:resp.id})

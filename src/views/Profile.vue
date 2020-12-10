@@ -1,5 +1,5 @@
 <template>
-  <div class="profile">
+  <div class="profile" v-if="$store.state.user.uid">
     <Header active="posts" />
     <div class="next">
       <div class="left">
@@ -67,7 +67,7 @@
         <div><Poster @newPost="newPost" /></div>
         <div class="my-posts">
           <div class="posts">
-            <div class="post card" v-for="post in posts" :key="post.id">
+            <div class="post card" v-for="post in myposts" :key="post.id">
               <Post :post="post" />
             </div>
             <hr />
@@ -118,7 +118,8 @@ import Post from "@/components/Post.vue";
 import Poster from "@/components/Poster.vue";
 
 import Header from "@/components/Header.vue";
-
+import firebase from "../firebase/firebaseConfig";
+const db = firebase.firestore();
 import Axios from "axios";
 @Component({
   components: {
@@ -130,17 +131,41 @@ import Axios from "axios";
 export default class Profile extends Vue {
   friends = [];
   savedUser={};
+  myposts:any=[]
   isEditModeOpened = false;
   errors:any=[];
   get user(){
     return this.$store.state.user
   }
   newPost(postBody: string) {
-    this.$store.commit("appendMyPosts", postBody);
+      db.collection("posts")
+          .add({ name: this.$store.state.user.name ,body:postBody,likes:0,comments:[],created:new Date().getTime(),userId:this.$store.state.user.uid  })
+          .then((res:any) => {
+          res.get().then((resp:any)=>{
+              this.myposts.unshift({...resp.data(),id:resp.id})
+            })
+            console.log("Document successfully written!");
+          })
+          .catch((error) => {
+            console.error("Error writing document: ", error);
+          });
+        
   }
   mounted(){
     this.savedUser = this.user
+    this.getMyPosts()
   }
+  getMyPosts(){
+   db.collection("posts").get().then((querySnapshot:any)=> {
+      const currentuserposts:any = []
+     querySnapshot.forEach((doc:any) => {
+       if((doc.data()).userId === this.$store.state.user.uid){
+
+         currentuserposts.push({...doc.data(),id:doc.id})
+       }
+    });
+     this.myposts = currentuserposts
+  })}
   saveInfo(e:any){
     this.errors = []
     e.preventDefault(e)
@@ -155,9 +180,6 @@ export default class Profile extends Vue {
     this.isEditModeOpened = false
     this.savedUser = this.user
 
-  }
-  get posts() {
-    return this.$store.state.myPosts;
   }
 }
 </script>

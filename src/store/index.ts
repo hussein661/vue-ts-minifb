@@ -19,11 +19,10 @@ export default new Vuex.Store({
     },
     appendMyPosts(state,newPost:string) {
       state.myPosts.unshift({
-        id:(new Date()).getTime(),
-        name:'Hussein',
         body:newPost,
-        title:'Hussein',
-        userId:1
+        name:state.user.name,
+        userId:state.user.uid,
+        uid:state.user.uid
       })
     }
   },
