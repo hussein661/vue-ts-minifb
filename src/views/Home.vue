@@ -9,7 +9,6 @@
       <div class="post" v-for="post in posts" :key="post.id"><Post :post="post"/></div>
       <hr />
     </div>
-      <iframe width="100%" height="100vh" src="http://localhost:8081/" />
   </div>
 </template>
 
